@@ -1,0 +1,34 @@
+[
+  {
+    "id": "chg20",
+    "name": "USB\u2011C 20W Charger",
+    "cat": "Chargers",
+    "price": 1999,
+    "img": "assets/demo_charger.jpg.png",
+    "desc": "Fast charge adapter for smartphones."
+  },
+  {
+    "id": "cbl1",
+    "name": "USB\u2011C Cable 1m",
+    "cat": "Cables",
+    "price": 699,
+    "img": "assets/demo_cable.jpg",
+    "desc": "Durable data + charge cable."
+  },
+  {
+    "id": "buds",
+    "name": "TWS Earbuds",
+    "cat": "Audio",
+    "price": 2999,
+    "img": "assets/demo_earbuds.jpg",
+    "desc": "Clear sound with compact case."
+  },
+  {
+    "id": "watch",
+    "name": "Smartwatch M-Series",
+    "cat": "Smartwatch",
+    "price": 6499,
+    "img": "assets/demo_watch.jpg",
+    "desc": "Fitness tracking & notifications."
+  }
+]

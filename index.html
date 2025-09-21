@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HAFI Mart — Mobile Accessories</title>
+<style>
+  :root { --brand:#111827; --accent:#2563eb; --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#0f172a}
+
+  /* Splash */
+  #splash{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:9999}
+  #splash img{width:200px;height:200px;border-radius:16px;animation:pulse 1.5s infinite}
+  @keyframes pulse{0%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.85}100%{transform:scale(1);opacity:1}}
+  #main{display:none}
+
+  /* Header + Search */
+  #header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 18px;background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:5}
+  #brand{display:flex;align-items:center;gap:10px}
+  #brand img{height:100px;width:100px;border-radius:12px}
+  #brand h1{font-size:22px;margin:0;color:var(--brand)}
+  .search-wrap{flex:1;max-width:520px;display:flex;gap:8px;align-items:center}
+  .search-wrap input{flex:1;padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;font-size:14px;background:#f8fafc}
+  .search-wrap button{padding:10px 12px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+
+  /* Layout */
+  .wrap{max-width:1200px;margin:20px auto;padding:0 16px}
+  .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+
+  /* Products */
+  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px}
+  .product{background:#fff;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,0.08);padding:15px;text-align:center;transition:.3s}
+  .product:hover{transform:translateY(-5px)}
+  .product img{width:100%;height:180px;object-fit:contain;margin-bottom:10px}
+  .product h3{font-size:18px;margin:10px 0}
+  .product p{color:#555;font-size:14px;margin:5px 0}
+  .btn{display:inline-block;margin-top:10px;padding:10px 15px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+  .btn:hover{background:#1d4ed8}
+  .no-results{display:none;margin:10px 0;color:var(--muted)}
+  /* Product Grid fix */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+
+  /* Drawer (checkout) */
+  .drawer{position:fixed;top:0;right:-420px;width:420px;max-width:100%;height:100vh;background:#fff;border-left:1px solid #e5e7eb;box-shadow:-8px 0 24px rgba(0,0,0,.12);transition:right .3s ease;z-index:50;display:flex;flex-direction:column}
+  .drawer.open{right:0}
+  .drawer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f1f5f9}
+  .drawer-body{padding:14px 16px;overflow:auto}
+  .cart-item{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px dashed #e5e7eb}
+  .cart-item img{width:56px;height:56px;object-fit:cover;border-radius:8px;background:#fafafa}
+  .qty{display:flex;align-items:center;gap:6px;margin-top:6px}
+  .qty button{width:28px;height:28px;border:1px solid #e5e7eb;background:#fff;border-radius:8px;cursor:pointer}
+  .remove{background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px}
+  .totals{padding:12px 0;border-top:1px solid #e5e7eb;margin-top:6px}
+  .row{display:flex;justify-content:space-between;margin:6px 0}
+  form .field{display:flex;flex-direction:column;margin:10px 0}
+  form label{font-size:13px;color:var(--muted);margin-bottom:6px}
+  form input, form textarea, form select{padding:10px;border:1px solid #e5e7eb;border-radius:10px;font-size:14px}
+  .drawer-footer{padding:14px 16px;border-top:1px solid #f1f5f9}
+  .place-btn{width:100%;padding:12px 14px;border:none;border-radius:10px;background:#16a34a;color:#fff;font-weight:800;cursor:pointer}
+  .empty{color:var(--muted);font-size:14px;padding:10px 0}
+
+  /* Cart FAB */
+  .cart-fab{position:fixed;right:16px;bottom:16px;background:var(--accent);color:#fff;border:none;border-radius:999px;padding:12px 16px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.2);z-index:40;cursor:pointer}
+  .cart-count{background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;margin-left:8px;font-size:12px}
+  @media (min-width:900px){ .cart-fab{display:none} }
+</style>
+</head>
+<body>
+
+<!-- Splash -->
+<div id="splash"><img src="assets/logo.png" alt="HAFI Mart Logo"></div>
+
+<!-- Main -->
+<div id="main">
+  <!-- Header + Search -->
+  <div id="header">
+    <div id="brand">
+      <img src="assets/logo.png" alt="HAFI Mart Logo">
+      <h1>HAFI Mart — Mobile Accessories</h1>
+    </div>
+    <div class="search-wrap">
+      <input id="searchInput" type="search" placeholder="Search products..." aria-label="Search products">
+      <button id="searchBtn">Search</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Our Products</h2>
+      <span class="no-results" id="noResults">No products found.</span>
+    </div>
+<div class="product-grid">
+      <div class="product">
+        <img src="assets/smart watch.png" alt="Product 1">
+        <h3>smart watch 
+          modle:m17
+        </h3>
+        <p>RS.2000</p>
+        <button class="btn addBtn"
+          data-id="p1" data-name="Product 1" data-price="20" data-img="assets/smart watch.png">Add to Cart</button>
+      </div>
+          <div class="product">
+        <img src="assets/ear buds.png" alt="Product 2">
+        <h3>REDINGON POR2 EARBUDS</h3>
+        <p>RS.1600</p>
+        <button class="btn addBtn"
+          data-id="p2" data-name="Product 2" data-price="25" data-img="assets/ear buds.png">Add to Cart</button>
+      </div>
+      <div class="product">
+        <img src="assets/ear buds22.png" alt="Product 3">
+        <h3>STERO EARBUDS CLASIC</h3>
+        <p>RS.950</p>
+        <button class="btn addBtn"
+          data-id="p3" data-name="Product 3" data-price="30" data-img="assets/ear buds22.png">Add to Cart</button>
+      </div>
+      <div class="product">
+        <img src="assets/apple cable wit charger.png" alt="Apple Cable with Charger">
+        <h3>Apple Cable with Charger</h3>
+        <p>2500</p>
+        <button class="btn addBtn"
+          data-id="p4" data-name="Apple Cable with Charger" data-price="35" data-img="assets/apple cable wit charger.png">Add to Cart</button>
+      </div>
+      <div class="product">
+        <img src="assets/1.png" alt="Apple Cable with Charger">
+        <h3>Apple Charger</h3>
+        <p>1100</p>
+        <button class="btn addBtn"
+          data-id="p4" data-name="Apple Cable with Charger" data-price="35" data-img="assets/1.png">Add to Cart</button>
+      </div>
+      <div class="product">
+        <img src="assets/ad.png" alt="Apple Cable with Charger">
+        <h3>ADAPTOR 
+          ORIGINAL MADE IN CHINA.
+        </h3>
+        <p>700</p>
+        <button class="btn addBtn"
+          data-id="p4" data-name="a" data-price="35" data-img="assets/ad.png">Add to Cart</button>
+      </div>
+      <div class="product">
+        <img src="assets/9909.png" alt="Apple Cable with Charger">
+        <h3>ANDORIDE Cable</h3>
+        <p>450</p>
+        <button class="btn addBtn"
+          data-id="p4" data-name="Apple Cable with Charger" data-price="35" data-img="assets/ 9909.png">Add to Cart</button>
+      </div>
+      <div class="product">
+        <img src="assets/kolo cable.png" alt="Apple Cable with Charger">
+        <h3>KOLO Cable 
+          TYPE-C
+        </h3>
+        <p>600</p>
+        <button class="btn addBtn"
+          data-id="p4" data-name="Apple Cable with Charger" data-price="35" data-img="assets/kolo cable.png">Add to Cart</button>
+      </div>
+      <div class="product">
+        <img src="assets/wire.png" alt="Apple Cable with Charger">
+        <h3>U-GREEN WIRE
+          (2) METER LONG
+        </h3>
+        <p>1100</p>
+        <button class="btn addBtn"
+          data-id="p4" data-name="Apple Cable with Charger" data-price="35" data-img="assets/wire.png">Add to Cart</button>
+      </div>
+
+          <div class="product">
+        <img src="assets/azt ear buds.png" alt="Apple Cable with Charger">
+        <h3>AST EAR BUDS</h3>
+        <p>1000</p>
+        <button class="btn addBtn"
+          data-id="p4" data-name="Apple Cable with Charger" data-price="35" data-img="assets/azt ear buds .png">Add to Cart</button>
+          </div>
+          <div class="product">
+        <img src="assets/00.png" alt="Apple Cable with Charger">
+        <h3>PRO 2.EAR BUDS .</h3>
+        <p>1100</p>
+        <button class="btn addBtn"
+          data-id="p4" data-name="Apple Cable with Charger" data-price="35" data-img="assets/00.png">Add to Cart</button>
+          </div>
+</div>
+
+  <!-- Cart FAB -->
+  <button class="cart-fab" id="openCartFab">Cart <span class="cart-count" id="cartCount">0</span></button>
+
+  <!-- Checkout Drawer -->
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h3>Place Order</h3>
+      <button id="closeDrawer" class="btn" style="background:#0f172a">Close</button>
+    </div>
+    <div class="drawer-body">
+      <h4>🛒 Cart Items</h4>
+      <div id="cartList"></div>
+
+      <div class="totals">
+        <div class="row"><span>Subtotal</span><strong id="subtotal">Rs. 0</strong></div>
+        <div class="row"><span>Delivery</span><strong id="delivery">Rs. 200</strong></div>
+        <div class="row" style="border-top:1px dotted #e5e7eb;padding-top:8px"><span>Total</span><strong id="grand">Rs. 0</strong></div>
+      </div>
+
+      <h4>📦 Delivery Details</h4>
+      <form id="checkoutForm">
+        <div class="field"><label>Full Name</label><input type="text" name="name" placeholder="Your name" required></div>
+        <div class="field"><label>Mobile Number</label><input type="tel" name="phone" placeholder="03xx xxxxxxx" required></div>
+        <div class="field"><label>Address</label><textarea name="address" rows="3" placeholder="House #, Street, Area, City" required></textarea></div>
+        <div class="field"><label>Payment Method</label>
+          <select name="payment" required>
+            <option value="COD" selected>Cash on Delivery</option>
+            
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="drawer-footer"><button class="place-btn" id="placeOrderBtn">Place Order</button></div>
+  </aside>
+</div>
+
+<script>
+  /* Splash */
+  window.addEventListener('load', ()=>{
+    setTimeout(()=>{
+      document.getElementById('splash').style.display='none';
+      document.getElementById('main').style.display='block';
+    },1200);
+  });
+
+  /* Cart / Checkout */
+  const cart=[]; const drawer=document.getElementById('drawer');
+  const cartList=document.getElementById('cartList');
+  const subtotalEl=document.getElementById('subtotal');
+  const deliveryEl=document.getElementById('delivery');
+  const grandEl=document.getElementById('grand');
+  const cartCount=document.getElementById('cartCount');
+  const DELIVERY_FEE=200;
+
+  const openDrawer=()=>drawer.classList.add('open');
+  const closeDrawer=()=>drawer.classList.remove('open');
+  document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
+  document.getElementById('openCartFab').addEventListener('click', openDrawer);
+
+  document.querySelectorAll('.addBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item={id:btn.dataset.id,name:btn.dataset.name,price:Number(btn.dataset.price),img:btn.dataset.img,qty:1};
+      const ex=cart.find(x=>x.id===item.id); ex?ex.qty++:cart.push(item);
+      renderCart(); openDrawer();
+    });
+  });
+
+  function renderCart(){
+    if(!cart.length){
+      cartList.innerHTML='<div class="empty">Your cart is empty.</div>';
+      subtotalEl.textContent='Rs. 0'; grandEl.textContent='Rs. 0'; cartCount.textContent='0'; return;
+    }
+    cartList.innerHTML=cart.map((p,i)=>`
+      <div class="cart-item">
+        <img src="${p.img}" alt="${p.name}">
+        <div>
+          <div style="font-weight:700">${p.name}</div>
+          <div class="muted">$${p.price} x ${p.qty} = <strong>$${(p.price*p.qty)}</strong></div>
+          <div class="qty">
+            <button onclick="decQty(${i})">-</button><span>${p.qty}</span><button onclick="incQty(${i})">+</button>
+            <button class="remove" onclick="removeItem(${i})">remove</button>
+          </div>
+        </div>
+        <div style="font-weight:700">$${(p.price*p.qty)}</div>
+      </div>`).join('');
+    const sub=cart.reduce((s,p)=>s+p.price*p.qty,0);
+    subtotalEl.textContent='Rs. '+sub;
+    deliveryEl.textContent='Rs. '+DELIVERY_FEE;
+    grandEl.textContent='Rs. '+(sub+(sub?DELIVERY_FEE:0));
+    cartCount.textContent=cart.reduce((s,p)=>s+p.qty,0);
+  }
+  window.incQty=i=>{cart[i].qty++;renderCart()}
+  window.decQty=i=>{cart[i].qty=Math.max(1,cart[i].qty-1);renderCart()}
+  window.removeItem=i=>{cart.splice(i,1);renderCart()}
+  document.getElementById('placeOrderBtn').addEventListener('click', ()=>{
+    if(!cart.length) return alert('Cart is empty. Please add a product.');
+    const f=document.getElementById('checkoutForm'); if(!f.reportValidity()) return;
+    const data=Object.fromEntries(new FormData(f).entries());
+    const subtotal=cart.reduce((s,p)=>s+p.price*p.qty,0), total=subtotal+(subtotal?DELIVERY_FEE:0);
+    alert('Order placed!\nTotal: Rs. '+total+'\nWe will contact you at '+data.phone+'.');
+    cart.length=0; renderCart(); f.reset(); closeDrawer();
+  });
+  renderCart();
+
+  /* Search */
+  const searchInput=document.getElementById('searchInput');
+  const searchBtn=document.getElementById('searchBtn');
+  function applySearch(){
+    const q=searchInput.value.trim().toLowerCase();
+    let shown=0;
+    document.querySelectorAll('.product').forEach(card=>{
+      const text=card.innerText.toLowerCase();
+      const hit=!q || text.includes(q);
+      card.style.display=hit?'block':'none';
+      if(hit) shown++;
+    });
+    document.getElementById('noResults').style.display = shown ? 'none' : 'inline';
+  }
+  searchInput.addEventListener('input', applySearch);
+  searchBtn.addEventListener('click', applySearch);
+</script>
+</body>
+</html>
